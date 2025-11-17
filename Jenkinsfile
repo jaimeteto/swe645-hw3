@@ -1,4 +1,59 @@
-stage('Deploy to Kubernetes') {
+pipeline {
+  agent any
+  options { timestamps() }
+
+  environment {
+    // Docker Hub repos for HW3
+    BACKEND_REPO  = "jaimeteto/survey-backend"
+    FRONTEND_REPO = "jaimeteto/survey-frontend"
+
+    // Simple version tag for HW3
+    VERSION = "hw3"
+  }
+
+  stages {
+
+    stage('Checkout') {
+      steps {
+        checkout scm  // pulls your swe645-hw3 repo
+      }
+    }
+
+    stage('Build Docker images') {
+      steps {
+        sh '''
+          echo "Building backend image: ${BACKEND_REPO}:${VERSION}"
+          docker build -t ${BACKEND_REPO}:${VERSION} ./backend
+
+          echo "Building frontend image: ${FRONTEND_REPO}:${VERSION}"
+          docker build -t ${FRONTEND_REPO}:${VERSION} ./frontend
+        '''
+      }
+    }
+
+    stage('Push to Docker Hub') {
+      steps {
+        withCredentials([usernamePassword(
+          credentialsId: 'dockerhub',        // same creds ID you used in HW2
+          usernameVariable: 'DHU',
+          passwordVariable: 'DHP'
+        )]) {
+          sh '''
+            echo "$DHP" | docker login -u "$DHU" --password-stdin
+
+            echo "Pushing backend image: ${BACKEND_REPO}:${VERSION}"
+            docker push ${BACKEND_REPO}:${VERSION}
+
+            echo "Pushing frontend image: ${FRONTEND_REPO}:${VERSION}"
+            docker push ${FRONTEND_REPO}:${VERSION}
+
+            docker logout || true
+          '''
+        }
+      }
+    }
+
+    stage('Deploy to Kubernetes') {
   steps {
     withCredentials([file(credentialsId: 'kubeconfig-hw3', variable: 'KCFG')]) {
       sh '''
@@ -20,6 +75,16 @@ stage('Deploy to Kubernetes') {
         kubectl -n $NS rollout status deploy/survey-backend --timeout=180s || true
         kubectl -n $NS rollout status deploy/survey-frontend --timeout=180s || true
       '''
+    }
+  }
+}
+
+  post {
+    success {
+      echo "✅ HW3 pipeline completed successfully (images built, pushed, and deployed to namespace hw3)."
+    }
+    failure {
+      echo "❌ HW3 pipeline failed — check the stage logs above."
     }
   }
 }
