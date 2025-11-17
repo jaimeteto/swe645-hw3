@@ -1,88 +1,25 @@
-pipeline {
-  agent any
-  options { timestamps() }
+stage('Deploy to Kubernetes') {
+  steps {
+    withCredentials([file(credentialsId: 'kubeconfig-hw3', variable: 'KCFG')]) {
+      sh '''
+        set -e
+        echo "Using kubeconfig: $KCFG"
+        export KUBECONFIG="$KCFG"
 
-  environment {
-    // Docker Hub repos for HW3
-    BACKEND_REPO  = "jaimeteto/survey-backend"
-    FRONTEND_REPO = "jaimeteto/survey-frontend"
+        kubectl config view
+        kubectl get nodes
 
-    // Simple version tag for HW3
-    VERSION = "hw3"
-  }
+        NS=hw3
+        echo "Ensuring namespace $NS exists..."
+        kubectl get ns $NS || kubectl create namespace $NS
 
-  stages {
+        echo "Applying manifests..."
+        kubectl -n $NS apply -f k8s/
 
-    stage('Checkout') {
-      steps {
-        checkout scm  // pulls your swe645-hw3 repo
-      }
-    }
-
-    stage('Build Docker images') {
-      steps {
-        sh '''
-          echo "Building backend image: ${BACKEND_REPO}:${VERSION}"
-          docker build -t ${BACKEND_REPO}:${VERSION} ./backend
-
-          echo "Building frontend image: ${FRONTEND_REPO}:${VERSION}"
-          docker build -t ${FRONTEND_REPO}:${VERSION} ./frontend
-        '''
-      }
-    }
-
-    stage('Push to Docker Hub') {
-      steps {
-        withCredentials([usernamePassword(
-          credentialsId: 'dockerhub',        // same creds ID you used in HW2
-          usernameVariable: 'DHU',
-          passwordVariable: 'DHP'
-        )]) {
-          sh '''
-            echo "$DHP" | docker login -u "$DHU" --password-stdin
-
-            echo "Pushing backend image: ${BACKEND_REPO}:${VERSION}"
-            docker push ${BACKEND_REPO}:${VERSION}
-
-            echo "Pushing frontend image: ${FRONTEND_REPO}:${VERSION}"
-            docker push ${FRONTEND_REPO}:${VERSION}
-
-            docker logout || true
-          '''
-        }
-      }
-    }
-
-    stage('Deploy to Kubernetes') {
-      steps {
-        sh '''
-          # Use the same cluster config Jenkins already uses for HW2
-          NS=hw3
-
-          echo "Ensuring namespace $NS exists..."
-          kubectl get ns $NS || kubectl create namespace $NS
-
-          echo "Applying k8s manifests from k8s/ folder..."
-          kubectl -n $NS apply -f k8s/
-
-          echo "Waiting for backend deployment rollout..."
-          kubectl -n $NS rollout status deploy/survey-backend --timeout=180s || true
-
-          echo "Waiting for frontend deployment rollout..."
-          kubectl -n $NS rollout status deploy/survey-frontend --timeout=180s || true
-
-          echo "HW3 deployments updated successfully."
-        '''
-      }
-    }
-  }
-
-  post {
-    success {
-      echo "✅ HW3 pipeline completed successfully (images built, pushed, and deployed to namespace hw3)."
-    }
-    failure {
-      echo "❌ HW3 pipeline failed — check the stage logs above."
+        echo "Waiting for rollouts..."
+        kubectl -n $NS rollout status deploy/survey-backend --timeout=180s || true
+        kubectl -n $NS rollout status deploy/survey-frontend --timeout=180s || true
+      '''
     }
   }
 }
