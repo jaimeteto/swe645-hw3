@@ -17,8 +17,10 @@ pipeline {
             export KUBECONFIG="$KCFG"
 
             # sanity checks
-            kubectl version --short
+            kubectl version --client
+            kubectl cluster-info
             kubectl get nodes
+
 
             # ensure dedicated namespace
             kubectl get ns ${NS} || kubectl create namespace ${NS}
