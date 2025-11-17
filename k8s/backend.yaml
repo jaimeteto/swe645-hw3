@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: DOCKERHUB_USER/survey-backend:hw3-latest
+          image: jaimeteto/survey-backend:hw3-latest
           ports:
             - containerPort: 8000
 ---

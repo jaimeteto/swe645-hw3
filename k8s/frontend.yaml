@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: DOCKERHUB_USER/survey-frontend:hw3-latest
+          image: jaimeteto/survey-frontend:hw3-latest
           ports:
             - containerPort: 80
           env:
