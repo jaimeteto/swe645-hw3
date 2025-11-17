@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: survey-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: survey-backend }
+  template:
+    metadata:
+      labels: { app: survey-backend }
+    spec:
+      containers:
+        - name: api
+          image: DOCKERHUB_USER/survey-backend:hw3-latest
+          ports:
+            - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: survey-backend-svc
+spec:
+  selector: { app: survey-backend }
+  ports:
+    - port: 8000
+      targetPort: 8000
