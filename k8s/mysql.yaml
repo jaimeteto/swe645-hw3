@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: survey-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: survey-mysql
+  template:
+    metadata:
+      labels:
+        app: survey-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: "rootpass"
+            - name: MYSQL_DATABASE
+              value: "surveysdb"
+          ports:
+            - containerPort: 3306
+          # Optional but nice: small resource limits so it doesn't blow up the node
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "256Mi"
+            limits:
+              cpu: "500m"
+              memory: "512Mi"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: survey-mysql
+spec:
+  selector:
+    app: survey-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  type: ClusterIP

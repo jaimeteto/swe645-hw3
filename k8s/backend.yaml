@@ -5,23 +5,31 @@ metadata:
 spec:
   replicas: 1
   selector:
-    matchLabels: { app: survey-backend }
+    matchLabels:
+      app: survey-backend
   template:
     metadata:
-      labels: { app: survey-backend }
+      labels:
+        app: survey-backend
     spec:
       containers:
         - name: api
-          image: jaimeteto/survey-backend:hw3
+          image: jaimeteto/survey-backend:hw3    # <-- must match your Jenkins tag
+          imagePullPolicy: Always                # force pulling latest hw3 on rollout
           ports:
             - containerPort: 8000
+          env:
+            - name: DATABASE_URL
+              value: "mysql+mysqlconnector://root:rootpass@survey-mysql:3306/surveysdb"
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: survey-backend-svc
 spec:
-  selector: { app: survey-backend }
+  selector:
+    app: survey-backend
   ports:
     - port: 8000
       targetPort: 8000
+  type: LoadBalancer   # or ClusterIP if you don't need public access
