@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 # build-time API base (CRA reads env at build time if used in code)
-ARG REACT_APP_API_BASE_URL=http://survey-backend-svc:8000
+ARG REACT_APP_API_BASE_URL=https://34.193.170.16/api/v1/namespaces/hw3/services/http:backend-svc:8000/
 ENV REACT_APP_API_BASE_URL=$REACT_APP_API_BASE_URL
 RUN npm run build
 
