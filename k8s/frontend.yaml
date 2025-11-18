@@ -12,13 +12,13 @@ spec:
     spec:
       containers:
         - name: web
-          image: jaimeteto/survey-frontend:hw3-1
+          image: jaimeteto/survey-frontend:hw3-2
           imagePullPolicy: Always 
           ports:
             - containerPort: 80
           env:
             - name: REACT_APP_API_BASE_URL
-              value: "http://survey-backend-svc:8000/proxy/"
+              value: "http://survey-backend-svc:8000/"
 ---
 apiVersion: v1
 kind: Service
