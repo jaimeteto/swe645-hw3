@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: jaimeteto/survey-frontend:hw3-latest
+          image: jaimeteto/survey-frontend:hw3
           ports:
             - containerPort: 80
           env:
