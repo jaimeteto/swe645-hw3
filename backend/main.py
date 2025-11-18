@@ -17,14 +17,12 @@ Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Student Survey API")
 
 # CORS so React at localhost:3000 can call this API
-origins = [
-    "*",  # allow all for now (safe enough for homework)
-]
+
 
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
