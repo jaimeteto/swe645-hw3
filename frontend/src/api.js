@@ -1,6 +1,7 @@
 // src/api.js
+console.log('API_BASE_URL:', process.env.REACT_APP_API_BASE_URL);
 const API_BASE_URL =
-  process.env.REACT_APP_API_BASE_URL || 'http://localhost:8000';
+  process.env.REACT_APP_API_BASE_URL || '';
 
 export async function getSurveys() {
   const res = await fetch(`${API_BASE_URL}/api/surveys`);
