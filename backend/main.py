@@ -18,9 +18,9 @@ app = FastAPI(title="Student Survey API")
 
 # CORS so React at localhost:3000 can call this API
 origins = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "*",  # allow all for now (safe enough for homework)
 ]
+
 
 app.add_middleware(
     CORSMiddleware,
