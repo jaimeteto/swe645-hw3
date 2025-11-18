@@ -1,22 +1,76 @@
-from fastapi import FastAPI
+# backend/main.py
+from fastapi import FastAPI, Depends, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
+from sqlalchemy.orm import Session
+from typing import List
 
-app = FastAPI()
+import database
+import models
+import schemas
+import crud
+from database import get_db, engine
+from models import Base
 
-# Allow the React dev server and later the K8s service to call us
+# Create tables on startup
+Base.metadata.create_all(bind=engine)
+
+app = FastAPI(title="Student Survey API")
+
+# CORS so React at localhost:3000 can call this API
+origins = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # tighten later (e.g., to your frontend host)
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-@app.get("/health")
-def health():
-    return {"status": "ok"}
 
-# Placeholder list endpoint we’ll replace with real CRUD later
-@app.get("/surveys")
-def list_surveys():
-    return []
+@app.get("/")
+def read_root():
+    return {"message": "Student Survey API is running"}
+
+
+@app.get("/api/surveys", response_model=List[schemas.SurveyOut])
+def list_surveys(db: Session = Depends(get_db)):
+    return crud.get_surveys(db)
+
+
+@app.post(
+    "/api/surveys",
+    response_model=schemas.SurveyOut,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_survey(
+    survey: schemas.SurveyCreate,
+    db: Session = Depends(get_db),
+):
+    return crud.create_survey(db, survey)
+
+
+@app.put("/api/surveys/{survey_id}", response_model=schemas.SurveyOut)
+def update_survey_endpoint(
+    survey_id: int,
+    survey: schemas.SurveyUpdate,
+    db: Session = Depends(get_db),
+):
+    updated = crud.update_survey(db, survey_id, survey)
+    if not updated:
+        raise HTTPException(status_code=404, detail="Survey not found")
+    return updated
+
+
+@app.delete("/api/surveys/{survey_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_survey_endpoint(
+    survey_id: int,
+    db: Session = Depends(get_db),
+):
+    ok = crud.delete_survey(db, survey_id)
+    if not ok:
+        raise HTTPException(status_code=404, detail="Survey not found")
+    return
