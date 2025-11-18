@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: jaimeteto/survey-backend:hw3    # <-- must match your Jenkins tag
+          image: jaimeteto/survey-backend:hw3-1    # <-- must match your Jenkins tag
           imagePullPolicy: Always                # force pulling latest hw3 on rollout
           ports:
             - containerPort: 8000

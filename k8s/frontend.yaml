@@ -12,7 +12,7 @@ spec:
     spec:
       containers:
         - name: web
-          image: jaimeteto/survey-frontend:hw3
+          image: jaimeteto/survey-frontend:hw3-1
           imagePullPolicy: Always 
           ports:
             - containerPort: 80
