@@ -23,6 +23,7 @@ origins = [
     "http://127.0.0.1:3000",
     "http://localhost",
     "http://127.0.0.1",
+    "https://34.193.170.16/api/v1/namespaces/hw3/services/http:survey-frontend-svc:80/proxy/"
 ]
 
 
