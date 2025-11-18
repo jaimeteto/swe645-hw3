@@ -32,4 +32,4 @@ spec:
   ports:
     - port: 8000
       targetPort: 8000
-  type: LoadBalancer   # or ClusterIP if you don't need public access
+  type: ClusterIP   # or ClusterIP if you don't need public access
