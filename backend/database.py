@@ -10,6 +10,8 @@ DATABASE_URL = os.getenv(
     "mysql+mysqlconnector://root:rootpass@mysql:3306/surveysdb"
 )
 
+# DATABASE_URL = "sqlite:///./survey.db"
+
 engine = create_engine(
     DATABASE_URL,
     pool_pre_ping=True,

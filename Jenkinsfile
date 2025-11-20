@@ -8,7 +8,7 @@ pipeline {
     FRONTEND_REPO = "jaimeteto/survey-frontend"
 
     // Simple version tag for HW3
-    VERSION = "hw3-2"
+    VERSION = "hw3-3"
   }
 
   stages {
